@@ -28,4 +28,18 @@ std::string Driver::getLibraryVersion() const
 {
   return driverImpl_->getLibraryVersion();
 }
+std::vector<std::string> Driver::getSerialNumbers() const
+{
+  return driverImpl_->getSerialNumbers();
+}
+
+bool Driver::startCamera(const std::string & serialNumber, const Callback & cb)
+{
+  return driverImpl_->startCamera(serialNumber, cb);
+}
+bool Driver::stopCamera()
+{
+  return driverImpl_->stopCamera();
+}
+
 }  // namespace flir_spinnaker_common

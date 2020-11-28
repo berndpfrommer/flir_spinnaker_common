@@ -16,8 +16,12 @@
 #ifndef FLIR_SPINNAKER_COMMON__DRIVER_H_
 #define FLIR_SPINNAKER_COMMON__DRIVER_H_
 
+#include <flir_spinnaker_common/image.h>
+
 #include <memory>
 #include <string>
+#include <vector>
+#include <functional>
 
 namespace flir_spinnaker_common
 {
@@ -25,8 +29,12 @@ namespace flir_spinnaker_common
   class Driver
   {
 public:
+    typedef std::function < void (const ImageConstPtr & img) > Callback;
     Driver();
     std::string getLibraryVersion() const;
+    std::vector < std::string > getSerialNumbers() const;
+    bool startCamera(const std::string & serialNumber, const Callback & cb);
+    bool stopCamera();
 
 private:
     // ----- variables --

@@ -19,17 +19,34 @@
 #include <SpinGenApi/SpinnakerGenApi.h>
 #include <Spinnaker.h>
 
+#include <flir_spinnaker_common/driver.h>
+
 #include <string>
+#include <vector>
+#include <thread>
+#include <memory>
 
 namespace flir_spinnaker_common {
   class DriverImpl {
+
 public:
     DriverImpl();
+    ~DriverImpl();
     std::string getLibraryVersion() const;
+    std::vector < std::string > getSerialNumbers() const;
+    bool startCamera(const std::string & serialNumber, const Driver::Callback & cb);
+    bool stopCamera();
 
 private:
+    void run();
+
     // ----- variables --
     Spinnaker::SystemPtr system_;
+    Spinnaker::CameraList cameraList_;
+    Spinnaker::CameraPtr camera_;
+    Driver::Callback callback_;
+    bool keepRunning_;
+    std::shared_ptr < std::thread > thread_;
   };
 }  // namespace flir_spinnaker_common
 
