@@ -31,14 +31,15 @@ target_link_libraries(flir_spinnaker_common PRIVATE Spinnaker::Spinnaker)
 
 target_include_directories(flir_spinnaker_common PUBLIC  
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
-    $<INSTALL_INTERFACE:include/flir_spinnaker_common>
+    $<INSTALL_INTERFACE:include>
     )
 
+# associates an "export_*" target with the library target
 install(TARGETS flir_spinnaker_common
   EXPORT export_flir_spinnaker_common
-  LIBRARY  DESTINATION lib/${PROJECT_NAME}
-  PUBLIC_HEADER DESTINATION  include/${PROJECT_NAME}
-  INCLUDES DESTINATION ${CMAKE_INSTALL_PREFIX}/include
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
   )
 
 install(
@@ -46,7 +47,13 @@ install(
   DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
 
+# this is what probably builds the cmake config files
 ament_export_targets(export_flir_spinnaker_common)
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_package()
 
