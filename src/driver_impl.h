@@ -1,20 +1,36 @@
-/* -*-c++-*--------------------------------------------------------------------
- * 2020 Bernd Pfrommer bernd.pfrommer@gmail.com
- */
+// -*-c++-*--------------------------------------------------------------------
+// Copyright 2020 Bernd Pfrommer <bernd.pfrommer@gmail.com>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#pragma once
+#ifndef DRIVER_IMPL_H_
+#define DRIVER_IMPL_H_
 
 #include <SpinGenApi/SpinnakerGenApi.h>
 #include <Spinnaker.h>
 
-namespace flir_spinnaker_common {
-class DriverImpl {
- public:
-  DriverImpl();
-  std::string getLibraryVersion() const;
+#include <string>
 
- private:
-  // ----- variables --
-  Spinnaker::SystemPtr system_;
-};
+namespace flir_spinnaker_common {
+  class DriverImpl {
+public:
+    DriverImpl();
+    std::string getLibraryVersion() const;
+
+private:
+    // ----- variables --
+    Spinnaker::SystemPtr system_;
+  };
 }  // namespace flir_spinnaker_common
+
+#endif  // DRIVER_IMPL_H_
