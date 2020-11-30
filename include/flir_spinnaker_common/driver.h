@@ -28,17 +28,18 @@ namespace flir_spinnaker_common
   class DriverImpl;
   class Driver
   {
-public:
-    typedef std::function < void (const ImageConstPtr & img) > Callback;
+  public:
+    typedef std::function<void(const ImageConstPtr & img)> Callback;
     Driver();
     std::string getLibraryVersion() const;
-    std::vector < std::string > getSerialNumbers() const;
+    std::vector<std::string> getSerialNumbers() const;
     bool startCamera(const std::string & serialNumber, const Callback & cb);
     bool stopCamera();
+    std::string getPixelFormat() const;
 
-private:
+  private:
     // ----- variables --
-    std::shared_ptr < DriverImpl > driverImpl_;
+    std::shared_ptr<DriverImpl> driverImpl_;
   };
-}  // namespace flir_spinnaker_common
+  }     // namespace flir_spinnaker_common
 #endif  // FLIR_SPINNAKER_COMMON__DRIVER_H_

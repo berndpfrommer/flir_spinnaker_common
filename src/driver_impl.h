@@ -18,36 +18,40 @@
 
 #include <SpinGenApi/SpinnakerGenApi.h>
 #include <Spinnaker.h>
-
 #include <flir_spinnaker_common/driver.h>
+#include <flir_spinnaker_common/image.h>
 
-#include <string>
-#include <vector>
-#include <thread>
 #include <memory>
+#include <string>
+#include <thread>
+#include <vector>
 
-namespace flir_spinnaker_common {
-  class DriverImpl {
-
+namespace flir_spinnaker_common
+{
+class DriverImpl
+{
 public:
-    DriverImpl();
-    ~DriverImpl();
-    std::string getLibraryVersion() const;
-    std::vector < std::string > getSerialNumbers() const;
-    bool startCamera(const std::string & serialNumber, const Driver::Callback & cb);
-    bool stopCamera();
+  DriverImpl();
+  ~DriverImpl();
+  std::string getLibraryVersion() const;
+  std::vector<std::string> getSerialNumbers() const;
+  bool startCamera(
+    const std::string & serialNumber, const Driver::Callback & cb);
+  bool stopCamera();
+  std::string getPixelFormat() const;
 
 private:
-    void run();
-
-    // ----- variables --
-    Spinnaker::SystemPtr system_;
-    Spinnaker::CameraList cameraList_;
-    Spinnaker::CameraPtr camera_;
-    Driver::Callback callback_;
-    bool keepRunning_;
-    std::shared_ptr < std::thread > thread_;
-  };
+  void run();
+  void setPixelFormat(const std::string & pixFmt);
+  // ----- variables --
+  Spinnaker::SystemPtr system_;
+  Spinnaker::CameraList cameraList_;
+  Spinnaker::CameraPtr camera_;
+  Driver::Callback callback_;
+  bool keepRunning_;
+  std::shared_ptr<std::thread> thread_;
+  pixel_format::PixelFormat pixelFormat_{pixel_format::INVALID};
+};
 }  // namespace flir_spinnaker_common
 
 #endif  // DRIVER_IMPL_H_

@@ -16,51 +16,37 @@
 #ifndef FLIR_SPINNAKER_COMMON__IMAGE_H_
 #define FLIR_SPINNAKER_COMMON__IMAGE_H_
 
+#include <flir_spinnaker_common/pixel_format.h>
+
 #include <memory>
 
 namespace flir_spinnaker_common
 {
-  class Image
-  {
+class Image
+{
 public:
-    typedef enum {INVALID = 0, BayerRG8} PixelFormat;
-    Image(
-      uint64_t t, uint64_t imgT, size_t imageSize, int status,
-      const void * data, size_t w, size_t h,
-      size_t stride, size_t bitsPerPixel, size_t numChan, uint64_t frameId,
-      int pixFmtIntType, int pixFmt)
-      : time_(t), imageTime_(imgT), imageSize_(imageSize), imageStatus_(status),
-      data_(data), width_(w),
-      height_(h), stride_(stride), bitsPerPixel_(bitsPerPixel),
-      numChan_(numChan), frameId_(frameId),
-      pixFmtIntType_(pixFmtIntType) {
-      switch (pixFmt) {
-        case 4: // PixelFormat_BayerRG8
-          pixFmt_ = BayerRG8;
-          break;
-        default:
-          pixFmt_ = INVALID;
-      }
-    }
+  Image(
+    uint64_t t, uint64_t imgT, size_t imageSize, int status, const void * data,
+    size_t w, size_t h, size_t stride, size_t bitsPerPixel, size_t numChan,
+    uint64_t frameId, pixel_format::PixelFormat pixFmt);
 
-    // ----- variables --
-    uint64_t time_;
-    uint64_t imageTime_;
-    size_t imageSize_;
-    int imageStatus_;
-    const void * data_;
-    size_t width_;
-    size_t height_;
-    size_t stride_; // in bytes
-    size_t bitsPerPixel_;
-    size_t numChan_;
-    uint64_t frameId_;
-    int pixFmtIntType_;
-    PixelFormat pixFmt_;
+  // ----- variables --
+  uint64_t time_;
+  uint64_t imageTime_;
+  size_t imageSize_;
+  int imageStatus_;
+  const void * data_;
+  size_t width_;
+  size_t height_;
+  size_t stride_;  // in bytes
+  size_t bitsPerPixel_;
+  size_t numChan_;
+  uint64_t frameId_;
+  pixel_format::PixelFormat pixelFormat_;
 
 private:
-  };
-  typedef std::shared_ptr < Image > ImagePtr;
-  typedef std::shared_ptr < const Image > ImageConstPtr;
+};
+typedef std::shared_ptr<Image> ImagePtr;
+typedef std::shared_ptr<const Image> ImageConstPtr;
 }  // namespace flir_spinnaker_common
 #endif  // FLIR_SPINNAKER_COMMON__IMAGE_H_

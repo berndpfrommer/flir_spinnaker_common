@@ -100,15 +100,19 @@ void DriverImpl::run()
     Spinnaker::ImagePtr imgPtr = camera_->GetNextImage(1000);
     auto now = std::chrono::high_resolution_clock::now();
     uint64_t t = std::chrono::duration_cast<std::chrono::nanoseconds>(
-      now.time_since_epoch()).count();
+                   now.time_since_epoch())
+                   .count();
     if (imgPtr->IsIncomplete()) {
       // Retrieve and print the image status description
-      std::cout << "Image incomplete: " << Spinnaker::Image::GetImageStatusDescription(
-        imgPtr->GetImageStatus()) << std::endl;
+      std::cout << "Image incomplete: "
+                << Spinnaker::Image::GetImageStatusDescription(
+                     imgPtr->GetImageStatus())
+                << std::endl;
     } else {
       const size_t width = imgPtr->GetWidth();
       const size_t height = imgPtr->GetHeight();
       //auto cpa = imgPtr->GetColorProcessing();
+#if 0      
       std::cout << "got image: " << width << "x" << height << " stride: " << imgPtr->GetStride() <<
         " bpp: " << imgPtr->GetBitsPerPixel() << " chan: " << imgPtr->GetNumChannels() <<
         " tl payload type: " << imgPtr->GetTLPayloadType() << " tl pix fmt: " <<
@@ -118,21 +122,21 @@ void DriverImpl::run()
         " fmt: " << imgPtr->GetPixelFormatName() << " int type: " <<
         imgPtr->GetPixelFormatIntType() << " frame id: " << imgPtr->GetFrameID() << " img id: " <<
         imgPtr->GetID() << std::endl;
-      ImagePtr img(
-        new Image(
-          t, imgPtr->GetTimeStamp(), imgPtr->GetImageSize(), imgPtr->GetImageStatus(),
-          imgPtr->GetData(), imgPtr->GetWidth(), imgPtr->GetHeight(),
-          imgPtr->GetStride(), imgPtr->GetBitsPerPixel(),
-          imgPtr->GetNumChannels(), imgPtr->GetFrameID(),
-          imgPtr->GetPixelFormatIntType(), imgPtr->GetPixelFormat()));
+#endif
+      // Note: GetPixelFormat() did not work for the grasshopper, so ignoring
+      // pixel format
+      ImagePtr img(new Image(
+        t, imgPtr->GetTimeStamp(), imgPtr->GetImageSize(),
+        imgPtr->GetImageStatus(), imgPtr->GetData(), imgPtr->GetWidth(),
+        imgPtr->GetHeight(), imgPtr->GetStride(), imgPtr->GetBitsPerPixel(),
+        imgPtr->GetNumChannels(), imgPtr->GetFrameID(), pixelFormat_));
       callback_(img);
     }
   }
 }
 
 bool DriverImpl::startCamera(
-  const std::string & serialNumber,
-  const Driver::Callback & cb)
+  const std::string & serialNumber, const Driver::Callback & cb)
 {
   if (camera_) {
     return false;
@@ -144,18 +148,30 @@ bool DriverImpl::startCamera(
     if (sn == serialNumber) {
       camera_ = cam;
       camera_->Init();
-      // Retrieve GenICam nodemap
+      // get GenICam nodemap
       GenApi::INodeMap & nodeMap = camera_->GetNodeMap();
       if (set_acquisition_mode_continuous(nodeMap)) {
         camera_->BeginAcquisition();
         keepRunning_ = true;
         thread_ = std::make_shared<std::thread>(&DriverImpl::run, this);
       } else {
-        std::cerr << "continuous acquisition failed for " <<
-          serialNumber << std::endl;
+        std::cerr << "continuous acquisition failed for " << serialNumber
+                  << std::endl;
         camera_->DeInit();
         camera_ = 0;
         return false;
+      }
+      GenApi::CEnumerationPtr ptrPixelFormat = nodeMap.GetNode("PixelFormat");
+      if (GenApi::IsAvailable(ptrPixelFormat)) {
+        setPixelFormat(
+          ptrPixelFormat->GetCurrentEntry()->GetSymbolic().c_str());
+        if (GenApi::IsWritable(ptrPixelFormat)) {
+          std::cout << "is writeable!" << std::endl;
+        }
+      } else {
+        setPixelFormat("BayerRG8");
+        std::cerr << "WARNING: driver could not read pixel format!"
+                  << std::endl;
       }
     }
   }
@@ -177,6 +193,16 @@ bool DriverImpl::stopCamera()
     return false;
   }
   return true;
+}
+
+void DriverImpl::setPixelFormat(const std::string & pixFmt)
+{
+  pixelFormat_ = pixel_format::from_nodemap_string(pixFmt);
+}
+
+std::string DriverImpl::getPixelFormat() const
+{
+  return (pixel_format::to_string(pixelFormat_));
 }
 
 }  // namespace flir_spinnaker_common

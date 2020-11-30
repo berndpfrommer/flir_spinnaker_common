@@ -13,33 +13,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <flir_spinnaker_common/driver.h>
+#ifndef FLIR_SPINNAKER_COMMON__PIXEL_FORMAT_H_
+#define FLIR_SPINNAKER_COMMON__PIXEL_FORMAT_H_
 
+#include <memory>
 #include <string>
-
-#include "./driver_impl.h"
 
 namespace flir_spinnaker_common
 {
-
-Driver::Driver() {driverImpl_.reset(new DriverImpl());}
-
-std::string Driver::getLibraryVersion() const
+namespace pixel_format
 {
-  return driverImpl_->getLibraryVersion();
-}
-std::vector<std::string> Driver::getSerialNumbers() const
-{
-  return driverImpl_->getSerialNumbers();
-}
-
-bool Driver::startCamera(const std::string & serialNumber, const Callback & cb)
-{
-  return driverImpl_->startCamera(serialNumber, cb);
-}
-bool Driver::stopCamera() { return driverImpl_->stopCamera(); }
-std::string Driver::getPixelFormat() const
-{
-  return driverImpl_->getPixelFormat();
-}
+enum PixelFormat { INVALID = 0, BayerRG8 = 1 };
+std::string to_string(PixelFormat f);
+PixelFormat from_nodemap_string(const std::string pixFmt);
+}  // namespace pixel_format
 }  // namespace flir_spinnaker_common
+#endif  // FLIR_SPINNAKER_COMMON__PIXEL_FORMAT_H_
