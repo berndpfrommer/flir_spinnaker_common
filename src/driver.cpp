@@ -33,13 +33,33 @@ std::vector<std::string> Driver::getSerialNumbers() const
   return driverImpl_->getSerialNumbers();
 }
 
-bool Driver::startCamera(const std::string & serialNumber, const Callback & cb)
+bool Driver::initCamera(const std::string & serialNumber)
 {
-  return driverImpl_->startCamera(serialNumber, cb);
+  return driverImpl_->initCamera(serialNumber);
 }
+
+bool Driver::deInitCamera() { return driverImpl_->deInitCamera(); }
+
+bool Driver::startCamera(const Callback & cb)
+{
+  return driverImpl_->startCamera(cb);
+}
+
 bool Driver::stopCamera() { return driverImpl_->stopCamera(); }
+
 std::string Driver::getPixelFormat() const
 {
   return driverImpl_->getPixelFormat();
 }
+double Driver::getFrameRate() const { return (driverImpl_->getFrameRate()); }
+
+std::string Driver::setFrameRate(double rate, double * retRate)
+{
+  return (driverImpl_->setFrameRate(rate, retRate));
+}
+std::string Driver::getNodeMapAsString()
+{
+  return (driverImpl_->getNodeMapAsString());
+}
+
 }  // namespace flir_spinnaker_common

@@ -33,9 +33,16 @@ namespace flir_spinnaker_common
     Driver();
     std::string getLibraryVersion() const;
     std::vector<std::string> getSerialNumbers() const;
-    bool startCamera(const std::string & serialNumber, const Callback & cb);
+
+    bool initCamera(const std::string & serialNumber);
+    bool deInitCamera();
+    bool startCamera(const Driver::Callback & cb);
     bool stopCamera();
+
     std::string getPixelFormat() const;
+    double getFrameRate() const;
+    std::string setFrameRate(double rate, double * retRate);
+    std::string getNodeMapAsString();
 
   private:
     // ----- variables --

@@ -31,6 +31,7 @@ add_library(flir_spinnaker_common
   src/driver_impl.cpp
   src/image.cpp
   src/pixel_format.cpp
+  src/genicam_utils.cpp
 )
 
 target_link_libraries(flir_spinnaker_common PRIVATE Spinnaker::Spinnaker)
