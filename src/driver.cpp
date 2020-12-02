@@ -62,4 +62,14 @@ std::string Driver::getNodeMapAsString()
   return (driverImpl_->getNodeMapAsString());
 }
 
+std::string Driver::setExposureTime(double t, double * retT)
+{
+  return (driverImpl_->setExposureTime(t, retT));
+}
+
+std::string Driver::setAutoExposure(bool a, bool * retA)
+{
+  return (driverImpl_->setAutoExposure(a, retA));
+}
+
 }  // namespace flir_spinnaker_common

@@ -179,6 +179,7 @@ static GenApi::CNodePtr find_node(const std::string & path, CNodePtr & node)
       }
     }
   }
+  //std::cerr << "driver: node not found: " << path << std::endl;
   return (GenApi::CNodePtr(NULL));
 }
 

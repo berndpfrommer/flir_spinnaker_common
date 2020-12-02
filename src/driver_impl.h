@@ -45,6 +45,8 @@ public:
     Spinnaker::ImagePtr image) override;  // from ImageEventHandler
   std::string setFrameRate(double rate, double * retRate);
   std::string getNodeMapAsString();
+  std::string setExposureTime(double t, double * retT);
+  std::string setAutoExposure(bool a, bool * retA);
 
 private:
   void setPixelFormat(const std::string & pixFmt);
