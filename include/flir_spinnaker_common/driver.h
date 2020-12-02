@@ -25,30 +25,36 @@
 
 namespace flir_spinnaker_common
 {
-  class DriverImpl;
-  class Driver
-  {
-  public:
-    typedef std::function<void(const ImageConstPtr & img)> Callback;
-    Driver();
-    std::string getLibraryVersion() const;
-    std::vector<std::string> getSerialNumbers() const;
+class DriverImpl;
+class Driver
+{
+public:
+  typedef std::function<void(const ImageConstPtr & img)> Callback;
+  Driver();
+  std::string getLibraryVersion() const;
+  std::vector<std::string> getSerialNumbers() const;
 
-    bool initCamera(const std::string & serialNumber);
-    bool deInitCamera();
-    bool startCamera(const Driver::Callback & cb);
-    bool stopCamera();
+  bool initCamera(const std::string & serialNumber);
+  bool deInitCamera();
+  bool startCamera(const Driver::Callback & cb);
+  bool stopCamera();
 
-    std::string getPixelFormat() const;
-    double getFrameRate() const;
-    std::string setFrameRate(double rate, double * retRate);
-    std::string getNodeMapAsString();
-    std::string setExposureTime(double t, double * retT);
-    std::string setAutoExposure(bool a, bool * retA);
+  std::string getPixelFormat() const;
+  double getFrameRate() const;
+  std::string setFrameRate(double rate, double * retRate);
+  std::string getNodeMapAsString();
+  std::string setExposureTime(double t, double * retT);
+  std::string setAutoExposure(bool a, bool * retA);
+  std::string setEnum(
+    const std::string & nodeName, const std::string & val,
+    std::string * retVal);
+  std::string setDouble(
+    const std::string & nodeName, double val, double * retVal);
+  std::string setBool(const std::string & nodeName, bool val, bool * retVal);
 
-  private:
-    // ----- variables --
-    std::shared_ptr<DriverImpl> driverImpl_;
-  };
-  }     // namespace flir_spinnaker_common
+private:
+  // ----- variables --
+  std::shared_ptr<DriverImpl> driverImpl_;
+};
+}  // namespace flir_spinnaker_common
 #endif  // FLIR_SPINNAKER_COMMON__DRIVER_H_

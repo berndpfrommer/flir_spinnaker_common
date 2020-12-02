@@ -71,5 +71,21 @@ std::string Driver::setAutoExposure(bool a, bool * retA)
 {
   return (driverImpl_->setAutoExposure(a, retA));
 }
+std::string Driver::setEnum(
+  const std::string & nodeName, const std::string & val, std::string * retVal)
+{
+  return (driverImpl_->setEnum(nodeName, val, retVal));
+}
+
+std::string Driver::setDouble(
+  const std::string & nodeName, double val, double * retVal)
+{
+  return (driverImpl_->setDouble(nodeName, val, retVal));
+}
+std::string Driver::setBool(
+  const std::string & nodeName, bool val, bool * retVal)
+{
+  return (driverImpl_->setBool(nodeName, val, retVal));
+}
 
 }  // namespace flir_spinnaker_common

@@ -26,6 +26,8 @@ using namespace Spinnaker;
 using namespace Spinnaker::GenApi;
 using namespace Spinnaker::GenICam;
 
+//#define DEBUG_NODE_TRAVERSAL
+
 namespace flir_spinnaker_common
 {
 namespace genicam_utils
@@ -162,12 +164,16 @@ static GenApi::CNodePtr find_node(const std::string & path, CNodePtr & node)
   gcstring name = catNode->GetName();
   FeatureList_t features;
   catNode->GetFeatures(features);
-  //std::cout << "parsing: " << name << " with features: " << features.size()
-  //<< std::endl;
+#ifdef DEBUG_NODE_TRAVERSAL
+  std::cout << "parsing: " << name << " with features: " << features.size()
+            << std::endl;
+#endif
   for (auto it = features.begin(); it != features.end(); ++it) {
     CNodePtr childNode = *it;
-    //std::cout << "checking child: " << childNode->GetName() << " vs " << token
-    //<< std::endl;
+#ifdef DEBUG_NODE_TRAVERSAL
+    std::cout << "checking child: " << childNode->GetName() << " vs " << token
+              << std::endl;
+#endif
     if (std::string(childNode->GetName().c_str()) == token) {
       if (is_readable(childNode)) {
         if (pos == std::string::npos) {  // no slash in name, found leaf node
@@ -179,7 +185,9 @@ static GenApi::CNodePtr find_node(const std::string & path, CNodePtr & node)
       }
     }
   }
-  //std::cerr << "driver: node not found: " << path << std::endl;
+#ifdef DEBUG_NODE_TRAVERSAL
+  std::cerr << "driver: node not found: " << path << std::endl;
+#endif
   return (GenApi::CNodePtr(NULL));
 }
 

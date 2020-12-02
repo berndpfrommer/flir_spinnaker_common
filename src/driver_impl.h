@@ -47,6 +47,12 @@ public:
   std::string getNodeMapAsString();
   std::string setExposureTime(double t, double * retT);
   std::string setAutoExposure(bool a, bool * retA);
+  std::string setEnum(
+    const std::string & nodeName, const std::string & val,
+    std::string * retVal);
+  std::string setDouble(
+    const std::string & nodeName, double val, double * retVal);
+  std::string setBool(const std::string & nodeName, bool val, bool * retVal);
 
 private:
   void setPixelFormat(const std::string & pixFmt);
