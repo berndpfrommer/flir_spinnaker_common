@@ -51,26 +51,16 @@ std::string Driver::getPixelFormat() const
 {
   return driverImpl_->getPixelFormat();
 }
-double Driver::getFrameRate() const { return (driverImpl_->getFrameRate()); }
-
-std::string Driver::setFrameRate(double rate, double * retRate)
+double Driver::getReceiveFrameRate() const
 {
-  return (driverImpl_->setFrameRate(rate, retRate));
+  return (driverImpl_->getReceiveFrameRate());
 }
+
 std::string Driver::getNodeMapAsString()
 {
   return (driverImpl_->getNodeMapAsString());
 }
 
-std::string Driver::setExposureTime(double t, double * retT)
-{
-  return (driverImpl_->setExposureTime(t, retT));
-}
-
-std::string Driver::setAutoExposure(bool a, bool * retA)
-{
-  return (driverImpl_->setAutoExposure(a, retA));
-}
 std::string Driver::setEnum(
   const std::string & nodeName, const std::string & val, std::string * retVal)
 {

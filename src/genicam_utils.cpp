@@ -33,119 +33,15 @@ namespace flir_spinnaker_common
 namespace genicam_utils
 {
 template <class T>
-static bool is_available(T ptr)
-{
-  return (GenApi::IsAvailable(ptr));
-}
-
-template <class T>
-static bool is_writable(T ptr)
-{
-  return (GenApi::IsAvailable(ptr) && GenApi::IsWritable(ptr));
-}
-
-template <class T>
 static bool is_readable(T ptr)
 {
   return (GenApi::IsAvailable(ptr) && GenApi::IsReadable(ptr));
 }
 
-static void indent(std::stringstream & ss, int n)
-{
-  for (int i = 0; i < n; i++) {
-    ss << " ";
-  }
-}
-
-// ----- some necessary forward declarations
-static void get_node_value_as_string(
-  std::stringstream & ss, CNodePtr node, unsigned int level);
-
-static void get_enumeration_selector_as_string(
-  std::stringstream & ss, CNodePtr node, unsigned int level)
-{
-  FeatureList_t selectedFeatures;
-  node->GetSelectedFeatures(selectedFeatures);
-  CEnumerationPtr ptrSelectorNode = static_cast<CEnumerationPtr>(node);
-  StringList_t entries;
-  ptrSelectorNode->GetSymbolics(entries);
-  CEnumEntryPtr ptrCurrentEntry = ptrSelectorNode->GetCurrentEntry();
-  const gcstring displayName = ptrSelectorNode->GetDisplayName();
-  const gcstring name = ptrSelectorNode->GetName();
-  const gcstring currentEntrySymbolic = ptrSelectorNode->ToString();
-  indent(ss, level);
-  ss << displayName << "(" << name << "): " << currentEntrySymbolic
-     << std::endl;
-
-  for (size_t i = 0; i < entries.size(); i++) {
-    CEnumEntryPtr selectorEntry = ptrSelectorNode->GetEntryByName(entries[i]);
-    FeatureList_t::const_iterator it;
-    if (is_writable(ptrSelectorNode)) {
-      if (is_readable(selectorEntry)) {
-        ptrSelectorNode->SetIntValue(selectorEntry->GetValue());
-        indent(ss, level + 1);
-        ss << displayName << "(" << name << "): " << ptrSelectorNode->ToString()
-           << std::endl;
-      }
-    }
-
-    for (it = selectedFeatures.begin(); it != selectedFeatures.end(); ++it) {
-      CNodePtr ptrFeatureNode = *it;
-      if (is_readable(ptrFeatureNode)) {
-        get_node_value_as_string(ss, ptrFeatureNode, level + 2);
-      }
-    }
-  }
-  if (is_writable(ptrSelectorNode)) {
-    ptrSelectorNode->SetIntValue(ptrCurrentEntry->GetValue());
-  }
-}
-
-static void get_node_value_as_string(
-  std::stringstream & ss, CNodePtr node, unsigned int level)
-{
-  if (
-    node->IsSelector() &&
-    (node->GetPrincipalInterfaceType() == intfIEnumeration)) {
-    get_enumeration_selector_as_string(ss, node, level);
-  } else {
-    CValuePtr ptrValueNode = static_cast<CValuePtr>(node);
-    const gcstring displayName = ptrValueNode->GetDisplayName();
-    const gcstring name = ptrValueNode->GetName();
-    indent(ss, level);
-    ss << displayName << "(" << name << "): " << ptrValueNode->ToString()
-       << std::endl;
-  }
-}
-
-void get_node_as_string(
-  std::stringstream & ss, CNodePtr node, unsigned int level)
-{
-  indent(ss, level);
-  CCategoryPtr ptrCategoryNode = static_cast<CCategoryPtr>(node);
-  gcstring displayName = ptrCategoryNode->GetDisplayName();
-  gcstring name = ptrCategoryNode->GetName();
-  ss << displayName << "icat(" << name << ")";
-  FeatureList_t features;
-  ptrCategoryNode->GetFeatures(features);
-  for (auto it = features.begin(); it != features.end(); ++it) {
-    CNodePtr ptrFeatureNode = *it;
-    if (is_readable(ptrFeatureNode)) {
-      if (ptrFeatureNode->GetPrincipalInterfaceType() == intfICategory) {
-        get_node_as_string(ss, ptrFeatureNode, level + 1);
-      } else {
-        get_node_value_as_string(ss, ptrFeatureNode, level + 1);
-      }
-    }
-  }
-  ss << std::endl;
-}
-
 void get_nodemap_as_string(std::stringstream & ss, Spinnaker::CameraPtr cam)
 {
-  INodeMap & appLayerNodeMap = cam->GetNodeMap();
-  const int level = 0;
-  get_node_as_string(ss, appLayerNodeMap.GetNode("Root"), level);
+  GenICam::gcstring s = cam->GetGuiXml();
+  ss << s;
 }
 
 static GenApi::CNodePtr find_node(const std::string & path, CNodePtr & node)

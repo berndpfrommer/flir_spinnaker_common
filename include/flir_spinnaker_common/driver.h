@@ -40,11 +40,8 @@ public:
   bool stopCamera();
 
   std::string getPixelFormat() const;
-  double getFrameRate() const;
-  std::string setFrameRate(double rate, double * retRate);
+  double getReceiveFrameRate() const;
   std::string getNodeMapAsString();
-  std::string setExposureTime(double t, double * retT);
-  std::string setAutoExposure(bool a, bool * retA);
   std::string setEnum(
     const std::string & nodeName, const std::string & val,
     std::string * retVal);

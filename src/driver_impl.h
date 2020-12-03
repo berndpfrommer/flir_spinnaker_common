@@ -32,21 +32,23 @@ class DriverImpl : public Spinnaker::ImageEventHandler
 public:
   DriverImpl();
   ~DriverImpl();
+  // ------- inherited methods
+  void OnImageEvent(
+    Spinnaker::ImagePtr image) override;  // from ImageEventHandler
+  // ------- own methods
   std::string getLibraryVersion() const;
   std::vector<std::string> getSerialNumbers() const;
+  std::string getPixelFormat() const;
+
   bool initCamera(const std::string & serialNumber);
   bool deInitCamera();
+
   bool startCamera(const Driver::Callback & cb);
   bool stopCamera();
 
-  std::string getPixelFormat() const;
-  double getFrameRate() const;
-  void OnImageEvent(
-    Spinnaker::ImagePtr image) override;  // from ImageEventHandler
-  std::string setFrameRate(double rate, double * retRate);
+  double getReceiveFrameRate() const;
   std::string getNodeMapAsString();
-  std::string setExposureTime(double t, double * retT);
-  std::string setAutoExposure(bool a, bool * retA);
+  // methods for setting camera params
   std::string setEnum(
     const std::string & nodeName, const std::string & val,
     std::string * retVal);
@@ -65,6 +67,7 @@ private:
   Driver::Callback callback_;
   double avgTimeInterval_{0};
   uint64_t lastTime_{0};
+  bool cameraRunning_{false};
   pixel_format::PixelFormat pixelFormat_{pixel_format::INVALID};
 };
 }  // namespace flir_spinnaker_common
