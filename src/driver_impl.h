@@ -55,6 +55,8 @@ public:
   std::string setDouble(
     const std::string & nodeName, double val, double * retVal);
   std::string setBool(const std::string & nodeName, bool val, bool * retVal);
+  void setDebug(bool b) { debug_ = b; }
+  void setComputeBrightness(bool b) { computeBrightness_ = b; }
 
 private:
   void setPixelFormat(const std::string & pixFmt);
@@ -68,7 +70,11 @@ private:
   double avgTimeInterval_{0};
   uint64_t lastTime_{0};
   bool cameraRunning_{false};
+  bool debug_{false};
+  bool computeBrightness_{false};
+  int brightnessSkipPixels_{32};
   pixel_format::PixelFormat pixelFormat_{pixel_format::INVALID};
+  Spinnaker::GenApi::CFloatPtr exposureTimeNode_;
 };
 }  // namespace flir_spinnaker_common
 

@@ -28,7 +28,7 @@ namespace genicam_utils
 {
 void get_nodemap_as_string(std::stringstream & ss, Spinnaker::CameraPtr cam);
 Spinnaker::GenApi::CNodePtr find_node(
-  const std::string & path, Spinnaker::CameraPtr cam);
-}
+  const std::string & path, Spinnaker::CameraPtr cam, bool debug);
+}  // namespace genicam_utils
 }  // namespace flir_spinnaker_common
 #endif  // GENICAM_UTILS_H_

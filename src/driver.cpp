@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Spinnaker.h>
 #include <flir_spinnaker_common/driver.h>
 
 #include <string>
@@ -21,8 +22,7 @@
 
 namespace flir_spinnaker_common
 {
-
-Driver::Driver() {driverImpl_.reset(new DriverImpl());}
+Driver::Driver() { driverImpl_.reset(new DriverImpl()); }
 
 std::string Driver::getLibraryVersion() const
 {
@@ -64,18 +64,38 @@ std::string Driver::getNodeMapAsString()
 std::string Driver::setEnum(
   const std::string & nodeName, const std::string & val, std::string * retVal)
 {
-  return (driverImpl_->setEnum(nodeName, val, retVal));
+  try {
+    return (driverImpl_->setEnum(nodeName, val, retVal));
+  } catch (const Spinnaker::Exception & e) {
+    throw DriverException(e.what());
+  }
 }
 
 std::string Driver::setDouble(
   const std::string & nodeName, double val, double * retVal)
 {
-  return (driverImpl_->setDouble(nodeName, val, retVal));
+  try {
+    return (driverImpl_->setDouble(nodeName, val, retVal));
+  } catch (const Spinnaker::Exception & e) {
+    throw DriverException(e.what());
+  }
 }
+
 std::string Driver::setBool(
   const std::string & nodeName, bool val, bool * retVal)
 {
-  return (driverImpl_->setBool(nodeName, val, retVal));
+  try {
+    return (driverImpl_->setBool(nodeName, val, retVal));
+  } catch (const Spinnaker::Exception & e) {
+    throw DriverException(e.what());
+  }
 }
+
+void Driver::setComputeBrightness(bool b)
+{
+  driverImpl_->setComputeBrightness(b);
+}
+
+void Driver::setDebug(bool b) { driverImpl_->setDebug(b); }
 
 }  // namespace flir_spinnaker_common

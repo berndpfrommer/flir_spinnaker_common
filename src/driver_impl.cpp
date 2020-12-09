@@ -140,7 +140,7 @@ std::string DriverImpl::setEnum(
   const std::string & nodeName, const std::string & val, std::string * retVal)
 {
   *retVal = "UNKNOWN";
-  GenApi::CNodePtr np = genicam_utils::find_node(nodeName, camera_);
+  GenApi::CNodePtr np = genicam_utils::find_node(nodeName, camera_, debug_);
   std::string msg;
   if (!common_checks(np, nodeName, &msg)) {
     return (msg);
@@ -157,6 +157,15 @@ std::string DriverImpl::setEnum(
       auto ce = p->GetCurrentEntry();
       if (ce) {
         *retVal = ce->GetSymbolic().c_str();
+      }
+    }
+    if (debug_) {
+      std::cout << "node " << nodeName << " invalid enum: " << val << std::endl;
+      std::cout << "allowed enum values: " << std::endl;
+      GenApi::StringList_t validValues;
+      p->GetSymbolics(validValues);
+      for (const auto & ve : validValues) {
+        std::cout << "  " << ve << std::endl;
       }
     }
     return ("node " + nodeName + " invalid enum: " + val);
@@ -180,10 +189,10 @@ std::string DriverImpl::setEnum(
 template <class T1, class T2>
 static std::string set_parameter(
   const std::string & nodeName, T2 val, T2 * retVal,
-  const Spinnaker::CameraPtr & cam)
+  const Spinnaker::CameraPtr & cam, bool debug)
 {
   *retVal = std::nan("");
-  GenApi::CNodePtr np = genicam_utils::find_node(nodeName, cam);
+  GenApi::CNodePtr np = genicam_utils::find_node(nodeName, cam, debug);
   std::string msg;
   if (!common_checks(np, nodeName, &msg)) {
     return (msg);
@@ -201,18 +210,45 @@ std::string DriverImpl::setDouble(
   const std::string & nn, double val, double * retVal)
 {
   *retVal = std::nan("");
-  return (set_parameter<GenApi::CFloatPtr, double>(nn, val, retVal, camera_));
+  return (
+    set_parameter<GenApi::CFloatPtr, double>(nn, val, retVal, camera_, debug_));
 }
 
 std::string DriverImpl::setBool(const std::string & nn, bool val, bool * retVal)
 {
   *retVal = !val;
-  return (set_parameter<GenApi::CBooleanPtr, bool>(nn, val, retVal, camera_));
+  return (
+    set_parameter<GenApi::CBooleanPtr, bool>(nn, val, retVal, camera_, debug_));
 }
 
 double DriverImpl::getReceiveFrameRate() const
 {
   return (avgTimeInterval_ > 0 ? (1.0 / avgTimeInterval_) : 0);
+}
+
+static int int_ceil(size_t x, int y)
+{
+  // compute the integer ceil(x / y)
+  return ((int)((x + (size_t)y - 1) / y));
+}
+
+static int16_t compute_brightness(
+  pixel_format::PixelFormat pf, const uint8_t * data, size_t w, size_t h,
+  size_t stride, int skip)
+{
+  if (pf != pixel_format::BayerRG8) {
+    return (0);
+  }
+  const uint64_t cnt = int_ceil(w, skip) * int_ceil(h, skip);
+  uint64_t tot = 0;
+  const uint8_t * p = data;
+  for (size_t row = 0; row < h; row += skip) {
+    for (size_t col = 0; col < w; col += skip) {
+      tot += p[col];
+    }
+    p += stride * skip;
+  }
+  return (tot / cnt);
 }
 
 void DriverImpl::OnImageEvent(Spinnaker::ImagePtr imgPtr)
@@ -240,10 +276,17 @@ void DriverImpl::OnImageEvent(Spinnaker::ImagePtr imgPtr)
                    imgPtr->GetImageStatus())
               << std::endl;
   } else {
-#if 0    
+    const Spinnaker::ChunkData & chunk = imgPtr->GetChunkData();
+    const float expTime = chunk.GetExposureTime();
+    const float gain = chunk.GetGain();
+    const int64_t stamp = chunk.GetTimestamp();
+    const uint32_t maxExpTime = (uint32_t)(
+      is_readable(exposureTimeNode_) ? exposureTimeNode_->GetMax() : 0);
+#if 0
     std::cout << "got image: " << imgPtr->GetWidth() << "x"
               << imgPtr->GetHeight() << " stride: " << imgPtr->GetStride()
-              << " bpp: " << imgPtr->GetBitsPerPixel()
+              << " ts: " << stamp << " exp time: " << expTime
+              << " gain: " << gain << " bpp: " << imgPtr->GetBitsPerPixel()
               << " chan: " << imgPtr->GetNumChannels()
               << " tl payload type: " << imgPtr->GetTLPayloadType()
               << " tl pix fmt: " << imgPtr->GetTLPixelFormat()
@@ -255,15 +298,22 @@ void DriverImpl::OnImageEvent(Spinnaker::ImagePtr imgPtr)
               << " img id: " << imgPtr->GetID() << std::endl;
 #endif
     // Note: GetPixelFormat() did not work for the grasshopper, so ignoring
-    // pixel format
+    // pixel format in image, using the one from the configuration
+    const int16_t brightness =
+      computeBrightness_
+        ? compute_brightness(
+            pixelFormat_, static_cast<const uint8_t *>(imgPtr->GetData()),
+            imgPtr->GetWidth(), imgPtr->GetHeight(), imgPtr->GetStride(),
+            brightnessSkipPixels_)
+        : -1;
     ImagePtr img(new Image(
-      t, imgPtr->GetTimeStamp(), imgPtr->GetImageSize(),
+      t, brightness, expTime, maxExpTime, gain, stamp, imgPtr->GetImageSize(),
       imgPtr->GetImageStatus(), imgPtr->GetData(), imgPtr->GetWidth(),
       imgPtr->GetHeight(), imgPtr->GetStride(), imgPtr->GetBitsPerPixel(),
       imgPtr->GetNumChannels(), imgPtr->GetFrameID(), pixelFormat_));
     callback_(img);
   }
-}
+}  // namespace flir_spinnaker_common
 
 bool DriverImpl::initCamera(const std::string & serialNumber)
 {
@@ -310,6 +360,7 @@ bool DriverImpl::startCamera(const Driver::Callback & cb)
       setPixelFormat("BayerRG8");
       std::cerr << "WARNING: driver could not read pixel format!" << std::endl;
     }
+    exposureTimeNode_ = nodeMap.GetNode("ExposureTime");
   } else {
     std::cerr << "failed to switch on continuous acquisition!" << std::endl;
     return (false);

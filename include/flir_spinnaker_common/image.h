@@ -26,12 +26,17 @@ class Image
 {
 public:
   Image(
-    uint64_t t, uint64_t imgT, size_t imageSize, int status, const void * data,
-    size_t w, size_t h, size_t stride, size_t bitsPerPixel, size_t numChan,
+    uint64_t t, int16_t brightness, uint32_t et, uint32_t maxEt, float gain,
+    uint64_t imgT, size_t imageSize, int status, const void * data, size_t w,
+    size_t h, size_t stride, size_t bitsPerPixel, size_t numChan,
     uint64_t frameId, pixel_format::PixelFormat pixFmt);
 
   // ----- variables --
   uint64_t time_;
+  int16_t brightness_;
+  uint32_t exposureTime_;
+  uint32_t maxExposureTime_;
+  float gain_;
   uint64_t imageTime_;
   size_t imageSize_;
   int imageStatus_;

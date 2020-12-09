@@ -29,6 +29,14 @@ class DriverImpl;
 class Driver
 {
 public:
+  struct DriverException : public std::exception
+  {
+    DriverException(const std::string & what) : what_(what) {}
+    const char * what() const throw() { return what_.c_str(); }
+
+  private:
+    const std::string what_;
+  };
   typedef std::function<void(const ImageConstPtr & img)> Callback;
   Driver();
   std::string getLibraryVersion() const;
@@ -38,6 +46,8 @@ public:
   bool deInitCamera();
   bool startCamera(const Driver::Callback & cb);
   bool stopCamera();
+  void setDebug(bool b);
+  void setComputeBrightness(bool b);
 
   std::string getPixelFormat() const;
   double getReceiveFrameRate() const;
