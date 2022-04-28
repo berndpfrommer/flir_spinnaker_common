@@ -23,7 +23,7 @@ namespace flir_spinnaker_common
 {
 namespace pixel_format
 {
-enum PixelFormat { INVALID = 0, BayerRG8, Mono8 };
+enum PixelFormat { INVALID = 0, BayerRG8, RGB8, Mono8 };
 std::string to_string(PixelFormat f);
 PixelFormat from_nodemap_string(const std::string pixFmt);
 }  // namespace pixel_format
