@@ -54,6 +54,7 @@ public:
     std::string * retVal);
   std::string setDouble(
     const std::string & nodeName, double val, double * retVal);
+  std::string setInt(const std::string & nodeName, int val, int * retVal);
   std::string setBool(const std::string & nodeName, bool val, bool * retVal);
   void setDebug(bool b) { debug_ = b; }
   void setComputeBrightness(bool b) { computeBrightness_ = b; }

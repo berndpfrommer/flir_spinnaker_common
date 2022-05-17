@@ -91,6 +91,15 @@ std::string Driver::setBool(
   }
 }
 
+std::string Driver::setInt(const std::string & nodeName, int val, int * retVal)
+{
+  try {
+    return (driverImpl_->setInt(nodeName, val, retVal));
+  } catch (const Spinnaker::Exception & e) {
+    throw DriverException(e.what());
+  }
+}
+
 void Driver::setComputeBrightness(bool b)
 {
   driverImpl_->setComputeBrightness(b);

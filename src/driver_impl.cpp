@@ -186,12 +186,24 @@ std::string DriverImpl::setEnum(
   return ("OK");
 }
 
+template <class T>
+T set_invalid()
+{
+  return (std::nan(""));
+}
+
+template <>
+int set_invalid()
+{
+  return (-1);
+}
+
 template <class T1, class T2>
 static std::string set_parameter(
   const std::string & nodeName, T2 val, T2 * retVal,
   const Spinnaker::CameraPtr & cam, bool debug)
 {
-  *retVal = std::nan("");
+  *retVal = set_invalid<T2>();
   GenApi::CNodePtr np = genicam_utils::find_node(nodeName, cam, debug);
   std::string msg;
   if (!common_checks(np, nodeName, &msg)) {
@@ -219,6 +231,13 @@ std::string DriverImpl::setBool(const std::string & nn, bool val, bool * retVal)
   *retVal = !val;
   return (
     set_parameter<GenApi::CBooleanPtr, bool>(nn, val, retVal, camera_, debug_));
+}
+
+std::string DriverImpl::setInt(const std::string & nn, int val, int * retVal)
+{
+  *retVal = -1;
+  return (
+    set_parameter<GenApi::CIntegerPtr, int>(nn, val, retVal, camera_, debug_));
 }
 
 double DriverImpl::getReceiveFrameRate() const
