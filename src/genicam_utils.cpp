@@ -22,9 +22,13 @@
 
 #include <iostream>
 #include <sstream>
-using namespace Spinnaker;
-using namespace Spinnaker::GenApi;
-using namespace Spinnaker::GenICam;
+
+using Spinnaker::GenApi::CCategoryPtr;
+using Spinnaker::GenApi::CNodePtr;
+using Spinnaker::GenApi::FeatureList_t;
+using Spinnaker::GenApi::INodeMap;
+using Spinnaker::GenApi::intfICategory;
+using Spinnaker::GenICam::gcstring;
 
 namespace flir_spinnaker_common
 {
@@ -33,17 +37,17 @@ namespace genicam_utils
 template <class T>
 static bool is_readable(T ptr)
 {
-  return (GenApi::IsAvailable(ptr) && GenApi::IsReadable(ptr));
+  return (
+    Spinnaker::GenApi::IsAvailable(ptr) && Spinnaker::GenApi::IsReadable(ptr));
 }
 
 void get_nodemap_as_string(std::stringstream & ss, Spinnaker::CameraPtr cam)
 {
-  GenICam::gcstring s = cam->GetGuiXml();
+  gcstring s = cam->GetGuiXml();
   ss << s;
 }
 
-static GenApi::CNodePtr find_node(
-  const std::string & path, CNodePtr & node, bool debug)
+static CNodePtr find_node(const std::string & path, CNodePtr & node, bool debug)
 {
   // split off first part
   auto pos = path.find("/");
@@ -83,10 +87,10 @@ static GenApi::CNodePtr find_node(
   if (debug) {
     std::cerr << "driver: node not found: " << path << std::endl;
   }
-  return (GenApi::CNodePtr(NULL));
+  return (CNodePtr(NULL));
 }
 
-GenApi::CNodePtr find_node(
+CNodePtr find_node(
   const std::string & path, Spinnaker::CameraPtr cam, bool debug)
 {
   INodeMap & appLayerNodeMap = cam->GetNodeMap();

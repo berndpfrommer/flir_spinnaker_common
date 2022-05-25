@@ -18,10 +18,10 @@
 
 #include <flir_spinnaker_common/image.h>
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
-#include <functional>
 
 namespace flir_spinnaker_common
 {
@@ -31,7 +31,7 @@ class Driver
 public:
   struct DriverException : public std::exception
   {
-    DriverException(const std::string & what) : what_(what) {}
+    explicit DriverException(const std::string & what) : what_(what) {}
     const char * what() const throw() { return what_.c_str(); }
 
   private:

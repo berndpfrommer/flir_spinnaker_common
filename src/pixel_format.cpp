@@ -41,11 +41,9 @@ PixelFormat from_nodemap_string(const std::string pixFmt)
 {
   if (pixFmt == "BayerRG8") {
     return (BayerRG8);
-  } 
-  else if (pixFmt == "RGB8"){
+  } else if (pixFmt == "RGB8") {
     return RGB8;
-  } 
-  else if (pixFmt == "Mono8") {
+  } else if (pixFmt == "Mono8") {
     return (Mono8);
   } else {
     return (INVALID);

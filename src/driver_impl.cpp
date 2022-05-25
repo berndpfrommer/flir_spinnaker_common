@@ -248,7 +248,7 @@ double DriverImpl::getReceiveFrameRate() const
 static int int_ceil(size_t x, int y)
 {
   // compute the integer ceil(x / y)
-  return ((int)((x + (size_t)y - 1) / y));
+  return (static_cast<int>((x + (size_t)y - 1) / y));
 }
 
 static int16_t compute_brightness(
