@@ -299,8 +299,9 @@ void DriverImpl::OnImageEvent(Spinnaker::ImagePtr imgPtr)
     const float expTime = chunk.GetExposureTime();
     const float gain = chunk.GetGain();
     const int64_t stamp = chunk.GetTimestamp();
-    const uint32_t maxExpTime = (uint32_t)(
+    const uint32_t maxExpTime = static_cast<uint32_t>(
       is_readable(exposureTimeNode_) ? exposureTimeNode_->GetMax() : 0);
+
 #if 0
     std::cout << "got image: " << imgPtr->GetWidth() << "x"
               << imgPtr->GetHeight() << " stride: " << imgPtr->GetStride()
