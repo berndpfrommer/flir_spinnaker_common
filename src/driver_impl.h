@@ -22,7 +22,9 @@
 #include <flir_spinnaker_common/image.h>
 
 #include <memory>
+#include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace flir_spinnaker_common
@@ -33,8 +35,9 @@ public:
   DriverImpl();
   ~DriverImpl();
   // ------- inherited methods
-  void OnImageEvent(
-    Spinnaker::ImagePtr image) override;  // from ImageEventHandler
+  // from ImageEventHandler
+  void OnImageEvent(Spinnaker::ImagePtr image) override;
+
   // ------- own methods
   std::string getLibraryVersion() const;
   std::vector<std::string> getSerialNumbers() const;
@@ -58,10 +61,15 @@ public:
   std::string setBool(const std::string & nodeName, bool val, bool * retVal);
   void setDebug(bool b) { debug_ = b; }
   void setComputeBrightness(bool b) { computeBrightness_ = b; }
+  void setAcquisitionTimeout(double t)
+  {
+    acquisitionTimeout_ = static_cast<uint64_t>(t * 1e9);
+  }
 
 private:
   void setPixelFormat(const std::string & pixFmt);
   bool setInINodeMap(double f, const std::string & field, double * fret);
+  void monitorStatus();
 
   // ----- variables --
   Spinnaker::SystemPtr system_;
@@ -76,6 +84,10 @@ private:
   int brightnessSkipPixels_{32};
   pixel_format::PixelFormat pixelFormat_{pixel_format::INVALID};
   Spinnaker::GenApi::CFloatPtr exposureTimeNode_;
+  bool keepRunning_{true};
+  std::shared_ptr<std::thread> thread_;
+  std::mutex mutex_;
+  uint64_t acquisitionTimeout_{10000000000ULL};
 };
 }  // namespace flir_spinnaker_common
 

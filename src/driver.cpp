@@ -105,6 +105,11 @@ void Driver::setComputeBrightness(bool b)
   driverImpl_->setComputeBrightness(b);
 }
 
+void Driver::setAcquisitionTimeout(double t)
+{
+  driverImpl_->setAcquisitionTimeout(t);
+}
+
 void Driver::setDebug(bool b) { driverImpl_->setDebug(b); }
 
 }  // namespace flir_spinnaker_common

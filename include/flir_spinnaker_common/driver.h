@@ -48,6 +48,7 @@ public:
   bool stopCamera();
   void setDebug(bool b);
   void setComputeBrightness(bool b);
+  void setAcquisitionTimeout(double sec);
 
   std::string getPixelFormat() const;
   double getReceiveFrameRate() const;

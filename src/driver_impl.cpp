@@ -25,6 +25,7 @@
 
 namespace flir_spinnaker_common
 {
+namespace chrono = std::chrono;
 namespace GenApi = Spinnaker::GenApi;
 namespace GenICam = Spinnaker::GenICam;
 
@@ -110,11 +111,14 @@ DriverImpl::DriverImpl()
 
 DriverImpl::~DriverImpl()
 {
+  keepRunning_ = false;
   stopCamera();
   deInitCamera();
   camera_ = 0;  // call destructor, may not be needed
   cameraList_.Clear();
-  system_->ReleaseInstance();
+  if (system_) {
+    system_->ReleaseInstance();
+  }
 }
 
 std::string DriverImpl::getLibraryVersion() const
@@ -273,10 +277,9 @@ static int16_t compute_brightness(
 void DriverImpl::OnImageEvent(Spinnaker::ImagePtr imgPtr)
 {
   // update frame rate
-  auto now = std::chrono::high_resolution_clock::now();
+  auto now = chrono::high_resolution_clock::now();
   uint64_t t =
-    std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch())
-      .count();
+    chrono::duration_cast<chrono::nanoseconds>(now.time_since_epoch()).count();
   if (avgTimeInterval_ == 0) {
     if (lastTime_ != 0) {
       avgTimeInterval_ = (t - lastTime_) * 1e-9;
@@ -286,7 +289,10 @@ void DriverImpl::OnImageEvent(Spinnaker::ImagePtr imgPtr)
     const double alpha = 0.01;
     avgTimeInterval_ = avgTimeInterval_ * (1.0 - alpha) + dt * alpha;
   }
-  lastTime_ = t;
+  {
+    std::unique_lock<std::mutex> lock(mutex_);
+    lastTime_ = t;
+  }
 
   if (imgPtr->IsIncomplete()) {
     // Retrieve and print the image status description
@@ -372,7 +378,9 @@ bool DriverImpl::startCamera(const Driver::Callback & cb)
   if (set_acquisition_mode_continuous(nodeMap)) {
     camera_->RegisterEventHandler(*this);
     camera_->BeginAcquisition();
+    thread_ = std::make_shared<std::thread>(&DriverImpl::monitorStatus, this);
     cameraRunning_ = true;
+
     GenApi::CEnumerationPtr ptrPixelFormat = nodeMap.GetNode("PixelFormat");
     if (GenApi::IsAvailable(ptrPixelFormat)) {
       setPixelFormat(ptrPixelFormat->GetCurrentEntry()->GetSymbolic().c_str());
@@ -392,9 +400,14 @@ bool DriverImpl::startCamera(const Driver::Callback & cb)
 bool DriverImpl::stopCamera()
 {
   if (camera_ && cameraRunning_) {
-    camera_
-      ->EndAcquisition();  // must call before unregistering the event handler!
+    if (thread_) {
+      keepRunning_ = false;
+      thread_->join();
+      thread_ = 0;
+    }
+    camera_->EndAcquisition();  // before unregistering the event handler!
     camera_->UnregisterEventHandler(*this);
+
     cameraRunning_ = false;
     return true;
   }
@@ -416,6 +429,29 @@ std::string DriverImpl::getNodeMapAsString()
   std::stringstream ss;
   genicam_utils::get_nodemap_as_string(ss, camera_);
   return (ss.str());
+}
+
+void DriverImpl::monitorStatus()
+{
+  while (keepRunning_) {
+    std::this_thread::sleep_for(chrono::seconds(1));
+    uint64_t lastTime;
+    {
+      std::unique_lock<std::mutex> lock(mutex_);
+      lastTime = lastTime_;
+    }
+    auto now = chrono::high_resolution_clock::now();
+    uint64_t t =
+      chrono::duration_cast<chrono::nanoseconds>(now.time_since_epoch())
+        .count();
+    if (t - lastTime > acquisitionTimeout_ && camera_) {
+      std::cout << "WARNING: acquisition timeout, restarting!" << std::endl;
+      // Mucking with the camera in this thread without proper
+      // locking does not feel good. Expect some rare crashes.
+      camera_->EndAcquisition();
+      camera_->BeginAcquisition();
+    }
+  }
 }
 
 }  // namespace flir_spinnaker_common
