@@ -103,6 +103,11 @@ DriverImpl::DriverImpl()
     std::cerr << "cannot instantiate spinnaker driver!" << std::endl;
     throw std::runtime_error("failed to get spinnaker driver!");
   }
+  refreshCameraList();
+}
+
+void DriverImpl::refreshCameraList()
+{
   cameraList_ = system_->GetCameras();
   for (size_t cam_idx = 0; cam_idx < cameraList_.GetSize(); cam_idx++) {
     const auto cam = cameraList_[cam_idx];

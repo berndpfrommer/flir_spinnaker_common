@@ -40,6 +40,7 @@ public:
   typedef std::function<void(const ImageConstPtr & img)> Callback;
   Driver();
   std::string getLibraryVersion() const;
+  void refreshCameraList();
   std::vector<std::string> getSerialNumbers() const;
 
   bool initCamera(const std::string & serialNumber);

@@ -28,6 +28,9 @@ std::string Driver::getLibraryVersion() const
 {
   return driverImpl_->getLibraryVersion();
 }
+
+void Driver::refreshCameraList() { driverImpl_->refreshCameraList(); }
+
 std::vector<std::string> Driver::getSerialNumbers() const
 {
   return driverImpl_->getSerialNumbers();

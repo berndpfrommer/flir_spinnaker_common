@@ -40,6 +40,7 @@ public:
 
   // ------- own methods
   std::string getLibraryVersion() const;
+  void refreshCameraList();
   std::vector<std::string> getSerialNumbers() const;
   std::string getPixelFormat() const;
 
