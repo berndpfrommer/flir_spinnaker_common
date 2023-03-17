@@ -31,6 +31,7 @@ enum PixelFormat {
   Mono12p,
   Mono12Packed,
   Mono16,
+  RGB8,
   RGB8Packed,
   BayerRG8,
   BayerRG10p,
