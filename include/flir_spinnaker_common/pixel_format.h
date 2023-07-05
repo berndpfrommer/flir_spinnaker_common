@@ -23,7 +23,8 @@ namespace flir_spinnaker_common
 {
 namespace pixel_format
 {
-enum PixelFormat {
+enum PixelFormat
+{
   INVALID = 0,
   Mono8,
   Mono10p,

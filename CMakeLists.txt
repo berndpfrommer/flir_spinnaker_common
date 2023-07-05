@@ -19,7 +19,29 @@ endif()
 
 # the spinnaker SDK does not provide a cmake file
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-find_package(SPINNAKER REQUIRED)
+
+# If Spinnacker is already present, use the found version. If not, download it.
+# We can't resolve this dependency using the usual rosdep means because
+# the Point Grey EULA prohibits redistributing the headers or the packages which
+# contains them. We work around this by downloading the archive directly from
+# their website during this step in the build process.
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+find_package(Spinnaker QUIET)
+message(STATUS "Found variable: " ${Spinnaker_FOUND} " at " ${Spinnaker_LIBRARIES} " and "${Spinnaker_INCLUDE_DIRS} )
+
+if(NOT Spinnaker_FOUND)
+  message(STATUS "spinnaker not found")
+  message(STATUS "libSpinnaker not found in system library path")
+  include(cmake/DownloadSpinnaker.cmake)
+  download_spinnaker(Spinnaker_LIBRARIES Spinnaker_INCLUDE_DIRS)
+endif()
+
+message(STATUS "libSpinnaker library location: ${Spinnaker_LIBRARIES}")
+message(STATUS "libSpinnaker include location: ${Spinnaker_INCLUDE_DIRS}")
+
+find_package(Spinnaker REQUIRED)
+include_directories(SYSTEM
+                    ${Spinnaker_INCLUDE_DIRS})
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -34,7 +56,7 @@ add_library(flir_spinnaker_common
   src/genicam_utils.cpp
 )
 
-target_link_libraries(flir_spinnaker_common PRIVATE Spinnaker::Spinnaker)
+target_link_libraries(flir_spinnaker_common PUBLIC ${Spinnaker_LIBRARIES})
 
 target_include_directories(flir_spinnaker_common
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -52,6 +74,11 @@ install(
 install(
   DIRECTORY include
   DESTINATION ${CMAKE_INSTALL_PREFIX}
+)
+
+install(
+  DIRECTORY ${Spinnaker_INCLUDE_DIRS}
+  DESTINATION ${Spinnaker_INCLUDE_DIRS}
 )
 
 # this is what probably builds the cmake config files

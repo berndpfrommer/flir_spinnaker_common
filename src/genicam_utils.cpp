@@ -37,24 +37,23 @@ namespace genicam_utils
 template <class T>
 static bool is_readable(T ptr)
 {
-  return (
-    Spinnaker::GenApi::IsAvailable(ptr) && Spinnaker::GenApi::IsReadable(ptr));
+  return (Spinnaker::GenApi::IsAvailable(ptr) && Spinnaker::GenApi::IsReadable(ptr));
 }
 
-void get_nodemap_as_string(std::stringstream & ss, Spinnaker::CameraPtr cam)
+void get_nodemap_as_string(std::stringstream& ss, Spinnaker::CameraPtr cam)
 {
   gcstring s = cam->GetGuiXml();
   ss << s;
 }
 
-static CNodePtr find_node(const std::string & path, CNodePtr & node, bool debug)
+static CNodePtr find_node(const std::string& path, CNodePtr& node, bool debug)
 {
   // split off first part
   auto pos = path.find("/");
   const std::string token = path.substr(0, pos);  // first part of it
-  if (node->GetPrincipalInterfaceType() != intfICategory) {
-    std::cerr << "no category node: " << node->GetName() << " vs " << path
-              << std::endl;
+  if (node->GetPrincipalInterfaceType() != intfICategory)
+  {
+    std::cerr << "no category node: " << node->GetName() << " vs " << path << std::endl;
     return (NULL);
   }
 
@@ -63,37 +62,43 @@ static CNodePtr find_node(const std::string & path, CNodePtr & node, bool debug)
   gcstring name = catNode->GetName();
   FeatureList_t features;
   catNode->GetFeatures(features);
-  if (debug) {
-    std::cout << "parsing: " << name << " with features: " << features.size()
-              << std::endl;
+  if (debug)
+  {
+    std::cout << "parsing: " << name << " with features: " << features.size() << std::endl;
   }
-  for (auto it = features.begin(); it != features.end(); ++it) {
+  for (auto it = features.begin(); it != features.end(); ++it)
+  {
     CNodePtr childNode = *it;
-    if (debug) {
-      std::cout << "checking child: " << childNode->GetName() << " vs " << token
-                << std::endl;
+    if (debug)
+    {
+      std::cout << "checking child: " << childNode->GetName() << " vs " << token << std::endl;
     }
-    if (std::string(childNode->GetName().c_str()) == token) {
-      if (is_readable(childNode)) {
-        if (pos == std::string::npos) {  // no slash in name, found leaf node
+    if (std::string(childNode->GetName().c_str()) == token)
+    {
+      if (is_readable(childNode))
+      {
+        if (pos == std::string::npos)
+        {  // no slash in name, found leaf node
           return (childNode);
-        } else {
+        }
+        else
+        {
           const std::string rest = path.substr(pos + 1);
           return (find_node(rest, childNode, debug));
         }
       }
     }
   }
-  if (debug) {
+  if (debug)
+  {
     std::cerr << "driver: node not found: " << path << std::endl;
   }
   return (CNodePtr(NULL));
 }
 
-CNodePtr find_node(
-  const std::string & path, Spinnaker::CameraPtr cam, bool debug)
+CNodePtr find_node(const std::string& path, Spinnaker::CameraPtr cam, bool debug)
 {
-  INodeMap & appLayerNodeMap = cam->GetNodeMap();
+  INodeMap& appLayerNodeMap = cam->GetNodeMap();
   CNodePtr rootNode = appLayerNodeMap.GetNode("Root");
   CNodePtr retNode = find_node(path, rootNode, debug);
   return (retNode);

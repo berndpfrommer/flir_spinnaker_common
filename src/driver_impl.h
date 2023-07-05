@@ -44,32 +44,35 @@ public:
   std::vector<std::string> getSerialNumbers() const;
   std::string getPixelFormat() const;
 
-  bool initCamera(const std::string & serialNumber);
+  bool initCamera(const std::string& serialNumber);
   bool deInitCamera();
 
-  bool startCamera(const Driver::Callback & cb);
+  bool startCamera(const Driver::Callback& cb);
   bool stopCamera();
 
   double getReceiveFrameRate() const;
   std::string getNodeMapAsString();
   // methods for setting camera params
-  std::string setEnum(
-    const std::string & nodeName, const std::string & val,
-    std::string * retVal);
-  std::string setDouble(
-    const std::string & nodeName, double val, double * retVal);
-  std::string setInt(const std::string & nodeName, int val, int * retVal);
-  std::string setBool(const std::string & nodeName, bool val, bool * retVal);
-  void setDebug(bool b) { debug_ = b; }
-  void setComputeBrightness(bool b) { computeBrightness_ = b; }
+  std::string setEnum(const std::string& nodeName, const std::string& val, std::string* retVal);
+  std::string setDouble(const std::string& nodeName, double val, double* retVal);
+  std::string setInt(const std::string& nodeName, int val, int* retVal);
+  std::string setBool(const std::string& nodeName, bool val, bool* retVal);
+  void setDebug(bool b)
+  {
+    debug_ = b;
+  }
+  void setComputeBrightness(bool b)
+  {
+    computeBrightness_ = b;
+  }
   void setAcquisitionTimeout(double t)
   {
     acquisitionTimeout_ = static_cast<uint64_t>(t * 1e9);
   }
 
 private:
-  void setPixelFormat(const std::string & pixFmt);
-  bool setInINodeMap(double f, const std::string & field, double * fret);
+  void setPixelFormat(const std::string& pixFmt);
+  bool setInINodeMap(double f, const std::string& field, double* fret);
   void monitorStatus();
 
   // ----- variables --
@@ -77,18 +80,18 @@ private:
   Spinnaker::CameraList cameraList_;
   Spinnaker::CameraPtr camera_;
   Driver::Callback callback_;
-  double avgTimeInterval_{0};
-  uint64_t lastTime_{0};
-  bool cameraRunning_{false};
-  bool debug_{false};
-  bool computeBrightness_{false};
-  int brightnessSkipPixels_{32};
-  pixel_format::PixelFormat pixelFormat_{pixel_format::INVALID};
+  double avgTimeInterval_{ 0 };
+  uint64_t lastTime_{ 0 };
+  bool cameraRunning_{ false };
+  bool debug_{ false };
+  bool computeBrightness_{ false };
+  int brightnessSkipPixels_{ 32 };
+  pixel_format::PixelFormat pixelFormat_{ pixel_format::INVALID };
   Spinnaker::GenApi::CFloatPtr exposureTimeNode_;
-  bool keepRunning_{true};
+  bool keepRunning_{ true };
   std::shared_ptr<std::thread> thread_;
   std::mutex mutex_;
-  uint64_t acquisitionTimeout_{10000000000ULL};
+  uint64_t acquisitionTimeout_{ 10000000000ULL };
 };
 }  // namespace flir_spinnaker_common
 

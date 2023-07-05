@@ -26,42 +26,47 @@
 #
 include(FindPackageHandleStandardArgs)
 
-if( EXISTS "$ENV{SPINNAKER_ROOT_DIR}" )
-  file( TO_CMAKE_PATH "$ENV{SPINNAKER_ROOT_DIR}" SPINNAKER_ROOT_DIR )
-  set( SPINNAKER_ROOT_DIR "${SPINNAKER_ROOT_DIR}" CACHE PATH "Prefix for Spinnaker installation." )
+if( EXISTS "$ENV{Spinnaker_ROOT_DIR}" )
+  file( TO_CMAKE_PATH "$ENV{Spinnaker_ROOT_DIR}" Spinnaker_ROOT_DIR )
+  set( Spinnaker_ROOT_DIR "${Spinnaker_ROOT_DIR}" CACHE PATH "Prefix for Spinnaker installation." )
 endif()
 
-find_path(SPINNAKER_INCLUDE_DIR
+cmake_path(SET PATH2 "${CMAKE_CURRENT_BINARY_DIR}")
+cmake_path(GET PATH2 PARENT_PATH PARENTDIR )
+
+find_path(Spinnaker_INCLUDE_DIRS
   NAMES Spinnaker.h
   HINTS
-  ${SPINNAKER_ROOT_DIR}/include
+  ${Spinnaker_ROOT_DIR}/include
   /opt/spinnaker/include
   /usr/include/spinnaker
   /usr/local/include/spinnaker
+  /__w/flir_ros2_camera_driver/flir_ros2_camera_driver/ros_ws/build/flir_spinnaker_common/opt/spinnaker/include
 )
 
-find_library(SPINNAKER_LIBRARY
+find_library(Spinnaker_LIBRARIES
   NAMES Spinnaker
   HINTS
-  ${SPINNAKER_ROOT_DIR}/lib
+  ${Spinnaker_ROOT_DIR}/lib
   /opt/spinnaker/lib
   /usr/lib/
   /usr/local/lib
+  /__w/flir_ros2_camera_driver/flir_ros2_camera_driver/ros_ws/build/flir_spinnaker_common/usr/lib
   PATH_SUFFIXES Release Debug
 )
 
-set(SPINNAKER_INCLUDE_DIRS ${SPINNAKER_INCLUDE_DIR})
-set(SPINNAKER_LIBRARIES ${SPINNAKER_LIBRARY})
+set(Spinnaker_INCLUDE_DIRS ${Spinnaker_INCLUDE_DIRS})
+set(Spinnaker_LIBRARIES ${Spinnaker_LIBRARIES})
 
-find_package_handle_standard_args(SPINNAKER
-  FOUND_VAR SPINNAKER_FOUND
-  REQUIRED_VARS SPINNAKER_INCLUDE_DIR SPINNAKER_LIBRARY)
+find_package_handle_standard_args(Spinnaker
+  FOUND_VAR Spinnaker_FOUND
+  REQUIRED_VARS Spinnaker_INCLUDE_DIRS Spinnaker_LIBRARIES)
 
 
-if(SPINNAKER_FOUND AND NOT TARGET Spinnaker::Spinnaker)
+if(Spinnaker_FOUND AND NOT TARGET Spinnaker::Spinnaker)
   add_library(Spinnaker::Spinnaker UNKNOWN IMPORTED)
   set_target_properties(Spinnaker::Spinnaker PROPERTIES
-    IMPORTED_LOCATION                 "${SPINNAKER_LIBRARY}"
-    INTERFACE_INCLUDE_DIRECTORIES     "${SPINNAKER_INCLUDE_DIRS}"
+    IMPORTED_LOCATION                 "${Spinnaker_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES     "${Spinnaker_INCLUDE_DIRS}"
     IMPORTED_LINK_INTERFACE_LANGUAGES "CXX")
 endif()

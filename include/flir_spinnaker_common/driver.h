@@ -31,21 +31,26 @@ class Driver
 public:
   struct DriverException : public std::exception
   {
-    explicit DriverException(const std::string & what) : what_(what) {}
-    const char * what() const throw() { return what_.c_str(); }
+    explicit DriverException(const std::string& what) : what_(what)
+    {
+    }
+    const char* what() const throw()
+    {
+      return what_.c_str();
+    }
 
   private:
     const std::string what_;
   };
-  typedef std::function<void(const ImageConstPtr & img)> Callback;
+  typedef std::function<void(const ImageConstPtr& img)> Callback;
   Driver();
   std::string getLibraryVersion() const;
   void refreshCameraList();
   std::vector<std::string> getSerialNumbers() const;
 
-  bool initCamera(const std::string & serialNumber);
+  bool initCamera(const std::string& serialNumber);
   bool deInitCamera();
-  bool startCamera(const Driver::Callback & cb);
+  bool startCamera(const Driver::Callback& cb);
   bool stopCamera();
   void setDebug(bool b);
   void setComputeBrightness(bool b);
@@ -54,13 +59,10 @@ public:
   std::string getPixelFormat() const;
   double getReceiveFrameRate() const;
   std::string getNodeMapAsString();
-  std::string setEnum(
-    const std::string & nodeName, const std::string & val,
-    std::string * retVal);
-  std::string setDouble(
-    const std::string & nodeName, double val, double * retVal);
-  std::string setBool(const std::string & nodeName, bool val, bool * retVal);
-  std::string setInt(const std::string & nodeName, int val, int * retVal);
+  std::string setEnum(const std::string& nodeName, const std::string& val, std::string* retVal);
+  std::string setDouble(const std::string& nodeName, double val, double* retVal);
+  std::string setBool(const std::string& nodeName, bool val, bool* retVal);
+  std::string setInt(const std::string& nodeName, int val, int* retVal);
 
 private:
   // ----- variables --
